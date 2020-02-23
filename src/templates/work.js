@@ -2,23 +2,35 @@ import React, { Component } from "react"
 import { graphql } from "gatsby"
 import PropTypes from "prop-types"
 import Layout from '../components/layout'
+import Img from 'gatsby-image';
 
 class Work extends Component {
   render() {
       const post = this.props.data.wordpressWpWorks
 
-      console.log(post)
+      console.log(post.featured_media.localFile.childImageSharp.fixed)
+
+      // Setting the image parameters manually
+      const imageSrcManual = {
+        src: post.featured_media.localFile.childImageSharp.fixed.src,
+        width: 360,
+        height: 360,
+        srcSet: post.featured_media.localFile.childImageSharp.fixed.src
+      }
+
+      // Setting the image loading parameters automatically via GatsbyImageSharp
+      const imageSrcAuto = post.featured_media.localFile.childImageSharp.fixed
       
     return (
       <Layout>
         <h1>{post.title}</h1>
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
-        <h2>Abs path</h2>
-        <img src={post.featured_media.localFile.absolutePath} alt=""/>
-        <h2>url</h2>
-        <img src={post.featured_media.localFile.url} alt=""/>
-        <h2>Relative path</h2>
-        <img src={post.featured_media.localFile.relativePath} alt=""/>
+        
+        <h2>Image manually set</h2>
+        <Img style={{backgroundColor: 'red'}} fixed={imageSrcManual} />
+        
+        <h2>Image automatially set</h2>
+        <Img fixed={imageSrcAuto} />
       </Layout>
     )
   }
@@ -38,9 +50,12 @@ export const postQuery = graphql`
       content
       featured_media {
         localFile {
-            absolutePath
-            url
-            relativePath
+          childImageSharp {
+            fixed(width: 360, height: 360) {
+              ...GatsbyImageSharpFixed
+              src
+            }
+          }
         }
       }
     }
